@@ -2,7 +2,7 @@
 #include "window.hpp"
 #include "src/game/game.hpp"
 #include <SFML/Graphics.hpp>
-#include <print>
+#include <iostream>
 
 namespace menu::ui
 {
@@ -57,7 +57,7 @@ namespace menu::ui
         }
         else
         {
-            std::println("Failed to load icon image.");
+            std::cout << "Failed to load icon image." << std::endl;
             return Choice::Quit;
         }
 
@@ -67,7 +67,7 @@ namespace menu::ui
         Button playButton(  200, 50, 
                             2, 2, 
                             sf::Color::White, sf::Color(150, 150, 150),
-                            "plé"); 
+                            "plï¿½"); 
 
         Button quitButton(  200, 50, 
                             2, 1.5, 
@@ -78,7 +78,7 @@ namespace menu::ui
 
         while (window.isOpen())
         {
-            // gestion d'événements
+            // gestion d'ï¿½vï¿½nements
             sf::Event event;
             while (window.pollEvent(event))
             {
@@ -87,25 +87,27 @@ namespace menu::ui
                     case sf::Event::Closed:
                         // Demande de fermeture (croix de fermeture, alt+f4, etc.)
                         window.close();
-                        std::println("window has been closed");
+                        std::cout << "window has been closed" << std::endl;
                         return Choice::Quit;
 
                     case sf::Event::KeyPressed:
                         if (event.key.code == sf::Keyboard::Escape)
                         {
                             window.close();
-                            std::println("Escape key pressed, closing window");
+                            std::cout << "Escape key pressed, closing window" << std::endl;
                             return Choice::Quit;
                         }
 
                         if (event.key.code == sf::Keyboard::Enter && selectedButton == 1)
                         {
-                            game::main::run();  
+                            window.close();
+                            game::main::run();
+                            return Choice::Start;
                         }
                         else if (event.key.code == sf::Keyboard::Enter && selectedButton == 0)
                         {
                             window.close();
-                            std::println("Quit button selected, closing window");
+                            std::cout << "Quit button selected, closing window" << std::endl;
                             return Choice::Quit;
                         }
 
@@ -124,7 +126,7 @@ namespace menu::ui
                                 selectedButton -= 1;
                             }
                         }
-                        std::println("{0}", selectedButton);
+                        std::cout << selectedButton << std::endl;
 
                         if (selectedButton == 1)
                         {

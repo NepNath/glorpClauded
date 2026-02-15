@@ -8,8 +8,10 @@ project(app VERSION ${APP_VERSION})
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /FS /MP")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /FS /MP")
+if(MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /FS /MP")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /FS /MP")
+endif()
 set(CMAKE_DEBUG_POSTFIX D)
 set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /DEBUG")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -26,10 +28,14 @@ endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(CMAKE_PLATFORM "64")
-	set(CMAKE_GENERATOR_PLATFORM x64)
+    if(MSVC)
+        set(CMAKE_GENERATOR_PLATFORM x64)
+    endif()
 else()
-	set(CMAKE_PLATFORM "32")
-	set(CMAKE_GENERATOR_PLATFORM Win32)
+    set(CMAKE_PLATFORM "32")
+    if(MSVC)
+        set(CMAKE_GENERATOR_PLATFORM Win32)
+    endif()
 endif()
 
 if (NOT CMAKE_BINARY_DIR)
@@ -74,12 +80,12 @@ find_package(SFML 2.6.2 REQUIRED COMPONENTS system window graphics)
 find_package(GTest REQUIRED)
 enable_testing()
 
-# 1. Définir une règle d'installation pour copier les assets
+# 1. Dï¿½finir une rï¿½gle d'installation pour copier les assets
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets
 DESTINATION .
 FILES_MATCHING
 PATTERN "*.*")
-# 2. Ajouter une cible personnalisée pour exécuter l'installation
+# 2. Ajouter une cible personnalisï¿½e pour exï¿½cuter l'installation
 add_custom_target(copy_assets_to_runtime ALL
 COMMAND ${CMAKE_COMMAND} --install . --prefix
 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
