@@ -71,7 +71,7 @@ inline void SystemManager::register_system(std::shared_ptr<TSystem> system, Sign
 }
 
 template <typename TSystem>
-inline [[nodiscard]] std::shared_ptr<TSystem> SystemManager::get_system() const
+[[nodiscard]] inline std::shared_ptr<TSystem> SystemManager::get_system() const
 {
     static_assert(std::is_base_of_v<System, TSystem>, "TSystem must derive from ecs::System");
     const std::type_index key{typeid(TSystem)};

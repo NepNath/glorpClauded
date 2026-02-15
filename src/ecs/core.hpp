@@ -12,7 +12,7 @@
 namespace ecs
 {
 
-inline [[nodiscard]] Entity create_entity()
+[[nodiscard]] inline Entity create_entity()
 {
     return details::entities().create_entity();
 }

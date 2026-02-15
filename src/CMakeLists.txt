@@ -49,17 +49,18 @@ target_link_libraries(menu_ui
     PUBLIC sfml::sfml
     game
 )
-target_link_libraries(game 
+target_link_libraries(game
     PUBLIC sfml::sfml
+    lib::ecs
 )
 
 target_include_directories(menu_ui PUBLIC 
     ${CMAKE_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR} # Pour inclure le fichier généré
+    ${CMAKE_CURRENT_BINARY_DIR} # Pour inclure le fichier gï¿½nï¿½rï¿½
 )
 target_include_directories(game PUBLIC 
     ${CMAKE_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR} # Pour inclure le fichier généré menu_export.h
+    ${CMAKE_CURRENT_BINARY_DIR} # Pour inclure le fichier gï¿½nï¿½rï¿½ menu_export.h
 )
 
 set_target_properties(menu_ui PROPERTIES DEFINE_SYMBOL MENU_WINDOW_EXPORTS)
