@@ -103,6 +103,7 @@ int run()
     float invincibilityTimer = 0.0f;
     int score = 0;
     bool gameOver = false;
+    Vector2d lastShootDir(0, -1);
 
     sf::Text scoreText;
     scoreText.setFont(font);
@@ -155,7 +156,6 @@ int run()
 
         auto& playerHealth = ecs::get_component<Health>(player);
         auto& playerPos = ecs::get_component<Vector2d>(player);
-        auto& playerAnim = ecs::get_component<Animation>(player);
 
         if (playerHealth.hp <= 0)
         {
@@ -165,25 +165,19 @@ int run()
 
         invincibilityTimer -= dt;
 
+        auto& playerMov = ecs::get_component<Movement>(player);
+        if (playerMov.direction.x != 0.0f || playerMov.direction.y != 0.0f)
+            lastShootDir = playerMov.direction;
+
         shootCooldown -= dt;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && shootCooldown <= 0.0f)
         {
             shootCooldown = 0.3f;
 
-            Vector2d projDir(0, -1);
-            if (playerAnim.directionIndex == 1)
-                projDir = Vector2d(0, 1);
-            else if (playerAnim.directionIndex == 2)
-                projDir = Vector2d(-1, 0);
-            else if (playerAnim.directionIndex == 3)
-                projDir = Vector2d(1, 0);
-            else if (playerAnim.directionIndex == 4)
-                projDir = Vector2d(0, -1);
-
             ecs::Entity proj = ecs::create_entity();
             ecs::add_components(proj,
                 Vector2d(playerPos.x + 32.0f, playerPos.y + 40.0f),
-                Movement(projDir, 400.0f),
+                Movement(lastShootDir, 400.0f),
                 ShapeRenderer(6.0f, sf::Color::Yellow),
                 ProjectileTag{},
                 Collider(6.0f)
@@ -202,7 +196,7 @@ int run()
             if (side == 0)
             {
                 ex = static_cast<float>(GenerateRandomInt(0, 1280));
-                ey = -96.0f;
+                ey = -72.0f;
             }
             else if (side == 1)
             {
@@ -211,7 +205,7 @@ int run()
             }
             else if (side == 2)
             {
-                ex = -96.0f;
+                ex = -72.0f;
                 ey = static_cast<float>(GenerateRandomInt(0, 720));
             }
             else
@@ -228,9 +222,12 @@ int run()
                 Movement(Vector2d(0, 0), 80.0f),
                 SpriteRenderer(enemyTextures[textureIndex]),
                 EnemyTag{},
-                Collider(40.0f),
-                ColliderOffset(48.0f, 48.0f)
+                Collider(30.0f),
+                ColliderOffset(36.0f, 36.0f)
             );
+
+            auto& enemySprite = ecs::get_component<SpriteRenderer>(enemy);
+            enemySprite.sprite.setScale(0.75f, 0.75f);
 
             if (enemySpawnDelay > 0.5f)
                 enemySpawnDelay -= 0.05f;
