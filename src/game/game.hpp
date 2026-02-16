@@ -85,6 +85,14 @@ struct GAME_EXPORT Collider
     Collider(float r) : radius(r) {}
 };
 
+struct GAME_EXPORT ColliderOffset
+{
+    float x;
+    float y;
+    ColliderOffset() : x(0.0f), y(0.0f) {}
+    ColliderOffset(float x, float y) : x(x), y(y) {}
+};
+
 GAME_EXPORT int GenerateRandomInt(int min, int max);
 
 GAME_EXPORT int run();
