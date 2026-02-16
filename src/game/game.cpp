@@ -3,6 +3,7 @@
 #include "ecs/core.hpp"
 
 #include <SFML/Graphics.hpp>
+#include <algorithm>
 #include <memory>
 #include <random>
 #include <set>
@@ -121,8 +122,24 @@ int run()
     gameOverText.setFont(font);
     gameOverText.setCharacterSize(50);
     gameOverText.setFillColor(sf::Color::Red);
-    gameOverText.setPosition(450.0f, 300.0f);
+    gameOverText.setPosition(450.0f, 250.0f);
     gameOverText.setString("GAME OVER");
+
+    sf::Text restartText;
+    restartText.setFont(font);
+    restartText.setCharacterSize(25);
+    restartText.setFillColor(sf::Color::White);
+    restartText.setPosition(470.0f, 380.0f);
+    restartText.setString("Press R to Restart");
+
+    sf::Text quitText;
+    quitText.setFont(font);
+    quitText.setCharacterSize(25);
+    quitText.setFillColor(sf::Color::White);
+    quitText.setPosition(490.0f, 420.0f);
+    quitText.setString("Press Q to Quit");
+
+    std::vector<ecs::Entity> dynamicEntities;
 
     while (window.isOpen())
     {
@@ -145,11 +162,40 @@ int run()
 
         if (gameOver)
         {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+            {
+                window.close();
+                return 0;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+            {
+                for (auto e : dynamicEntities)
+                    ecs::destroy_entity(e);
+                dynamicEntities.clear();
+
+                auto& ph = ecs::get_component<Health>(player);
+                auto& pp = ecs::get_component<Vector2d>(player);
+                ph.hp = 5;
+                pp.x = 608.0f;
+                pp.y = 328.0f;
+
+                score = 0;
+                enemySpawnTimer = 0.0f;
+                enemySpawnDelay = 2.0f;
+                shootCooldown = 0.0f;
+                invincibilityTimer = 0.0f;
+                lastShootDir = Vector2d(0, -1);
+                gameOver = false;
+                continue;
+            }
+
             window.clear(sf::Color::Black);
             window.draw(backgroundSprite);
             window.draw(gameOverText);
             scoreText.setString("Score: " + std::to_string(score));
             window.draw(scoreText);
+            window.draw(restartText);
+            window.draw(quitText);
             window.display();
             continue;
         }
@@ -175,6 +221,7 @@ int run()
             shootCooldown = 0.3f;
 
             ecs::Entity proj = ecs::create_entity();
+            dynamicEntities.push_back(proj);
             ecs::add_components(proj,
                 Vector2d(playerPos.x + 32.0f, playerPos.y + 40.0f),
                 Movement(lastShootDir, 400.0f),
@@ -217,6 +264,7 @@ int run()
             int textureIndex = GenerateRandomInt(0, 6);
 
             ecs::Entity enemy = ecs::create_entity();
+            dynamicEntities.push_back(enemy);
             ecs::add_components(enemy,
                 Vector2d(ex, ey),
                 Movement(Vector2d(0, 0), 80.0f),
@@ -255,6 +303,10 @@ int run()
             toDestroy.insert(e);
         for (auto e : toDestroy)
             ecs::destroy_entity(e);
+        dynamicEntities.erase(
+            std::remove_if(dynamicEntities.begin(), dynamicEntities.end(),
+                [&toDestroy](ecs::Entity e) { return toDestroy.count(e) > 0; }),
+            dynamicEntities.end());
 
         window.clear(sf::Color::Black);
 
