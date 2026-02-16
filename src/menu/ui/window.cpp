@@ -67,7 +67,7 @@ namespace menu::ui
         Button playButton(  200, 50, 
                             2, 2, 
                             sf::Color::White, sf::Color(150, 150, 150),
-                            "pl�"); 
+                            "play"); 
 
         Button quitButton(  200, 50, 
                             2, 1.5, 
