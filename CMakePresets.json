@@ -91,7 +91,7 @@
     },
     {
       "name": "Build-SolutionVS",
-      "generator": "Visual Studio 17 2022",
+      "generator": "Visual Studio 18 2026",
       "binaryDir": "${sourceDir}/build/SolutionVS",
       "installDir": "${sourceDir}/install/SolutionVS",
       "cacheVariables": {
