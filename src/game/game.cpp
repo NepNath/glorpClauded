@@ -6,6 +6,7 @@
 #include <memory>
 #include <random>
 #include <set>
+#include <vector>
 
 namespace game::main
 {
@@ -32,11 +33,24 @@ int run()
     window.setFramerateLimit(144);
     window.setVerticalSyncEnabled(true);
 
+    sf::Texture backgroundTexture;
+    backgroundTexture.loadFromFile("assets/background.png");
+    sf::Sprite backgroundSprite(backgroundTexture);
+    float bgScaleX = 1280.0f / static_cast<float>(backgroundTexture.getSize().x);
+    float bgScaleY = 720.0f / static_cast<float>(backgroundTexture.getSize().y);
+    backgroundSprite.setScale(bgScaleX, bgScaleY);
+
     sf::Texture playerTexture;
     playerTexture.loadFromFile("assets/characterset8.png");
 
-    sf::Texture enemyTexture;
-    enemyTexture.loadFromFile("assets/glorp.png");
+    std::vector<sf::Texture> enemyTextures(7);
+    enemyTextures[0].loadFromFile("assets/ennemies/blorp-3x.png");
+    enemyTextures[1].loadFromFile("assets/ennemies/glorp-3x.png");
+    enemyTextures[2].loadFromFile("assets/ennemies/olorp-3x.png");
+    enemyTextures[3].loadFromFile("assets/ennemies/plorp-3x.png");
+    enemyTextures[4].loadFromFile("assets/ennemies/rlorp-3x.png");
+    enemyTextures[5].loadFromFile("assets/ennemies/wlorp-3x.png");
+    enemyTextures[6].loadFromFile("assets/ennemies/ylorp-3x.png");
 
     ecs::register_component<Vector2d>();
     ecs::register_component<Movement>();
@@ -48,6 +62,7 @@ int run()
     ecs::register_component<ProjectileTag>();
     ecs::register_component<Health>();
     ecs::register_component<Collider>();
+    ecs::register_component<ColliderOffset>();
 
     auto inputSystem = std::make_shared<systems::InputSystem>();
     ecs::register_system(inputSystem, ecs::create_signature<Movement, Animation, PlayerTag>());
@@ -78,7 +93,8 @@ int run()
         Animation(64, 64, 8, 0.1f),
         PlayerTag{},
         Health(5),
-        Collider(24.0f)
+        Collider(20.0f),
+        ColliderOffset(32.0f, 40.0f)
     );
 
     float enemySpawnTimer = 0.0f;
@@ -129,6 +145,7 @@ int run()
         if (gameOver)
         {
             window.clear(sf::Color::Black);
+            window.draw(backgroundSprite);
             window.draw(gameOverText);
             scoreText.setString("Score: " + std::to_string(score));
             window.draw(scoreText);
@@ -165,7 +182,7 @@ int run()
 
             ecs::Entity proj = ecs::create_entity();
             ecs::add_components(proj,
-                Vector2d(playerPos.x + 24.0f, playerPos.y + 24.0f),
+                Vector2d(playerPos.x + 32.0f, playerPos.y + 40.0f),
                 Movement(projDir, 400.0f),
                 ShapeRenderer(6.0f, sf::Color::Yellow),
                 ProjectileTag{},
@@ -185,35 +202,35 @@ int run()
             if (side == 0)
             {
                 ex = static_cast<float>(GenerateRandomInt(0, 1280));
-                ey = -40.0f;
+                ey = -96.0f;
             }
             else if (side == 1)
             {
                 ex = static_cast<float>(GenerateRandomInt(0, 1280));
-                ey = 760.0f;
+                ey = 720.0f;
             }
             else if (side == 2)
             {
-                ex = -40.0f;
+                ex = -96.0f;
                 ey = static_cast<float>(GenerateRandomInt(0, 720));
             }
             else
             {
-                ex = 1320.0f;
+                ex = 1280.0f;
                 ey = static_cast<float>(GenerateRandomInt(0, 720));
             }
+
+            int textureIndex = GenerateRandomInt(0, 6);
 
             ecs::Entity enemy = ecs::create_entity();
             ecs::add_components(enemy,
                 Vector2d(ex, ey),
                 Movement(Vector2d(0, 0), 80.0f),
-                SpriteRenderer(enemyTexture),
+                SpriteRenderer(enemyTextures[textureIndex]),
                 EnemyTag{},
-                Collider(20.0f)
+                Collider(40.0f),
+                ColliderOffset(48.0f, 48.0f)
             );
-
-            auto& enemySprite = ecs::get_component<SpriteRenderer>(enemy);
-            enemySprite.sprite.setScale(0.1f, 0.1f);
 
             if (enemySpawnDelay > 0.5f)
                 enemySpawnDelay -= 0.05f;
@@ -244,6 +261,7 @@ int run()
 
         window.clear(sf::Color::Black);
 
+        window.draw(backgroundSprite);
         shapeRenderSystem->render(window);
         spriteRenderSystem->render(window);
 

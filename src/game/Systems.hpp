@@ -197,14 +197,20 @@ public:
 
         auto& playerPos = ecs::get_component<main::Vector2d>(playerEntity);
         auto& playerCol = ecs::get_component<main::Collider>(playerEntity);
+        auto* playerOff = ecs::try_get_component<main::ColliderOffset>(playerEntity);
+        float playerCX = playerPos.x + (playerOff ? playerOff->x : 0.0f);
+        float playerCY = playerPos.y + (playerOff ? playerOff->y : 0.0f);
 
         for (auto enemy : enemies)
         {
             auto& ePos = ecs::get_component<main::Vector2d>(enemy);
             auto& eCol = ecs::get_component<main::Collider>(enemy);
+            auto* eOff = ecs::try_get_component<main::ColliderOffset>(enemy);
+            float eCX = ePos.x + (eOff ? eOff->x : 0.0f);
+            float eCY = ePos.y + (eOff ? eOff->y : 0.0f);
 
-            float dx = ePos.x - playerPos.x;
-            float dy = ePos.y - playerPos.y;
+            float dx = eCX - playerCX;
+            float dy = eCY - playerCY;
             float dist = std::sqrt(dx * dx + dy * dy);
 
             if (dist < eCol.radius + playerCol.radius)
@@ -219,8 +225,8 @@ public:
                 auto& pPos = ecs::get_component<main::Vector2d>(proj);
                 auto& pCol = ecs::get_component<main::Collider>(proj);
 
-                float pdx = ePos.x - pPos.x;
-                float pdy = ePos.y - pPos.y;
+                float pdx = eCX - pPos.x;
+                float pdy = eCY - pPos.y;
                 float pdist = std::sqrt(pdx * pdx + pdy * pdy);
 
                 if (pdist < eCol.radius + pCol.radius)
